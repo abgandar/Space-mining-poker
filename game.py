@@ -11,11 +11,11 @@ from players import *
 
 
 class Asteroid(object):
-    
+
     def __init__(self):
         p0 = int(numpy.random.lognormal() * 7)
         self.base_reward = p0
-    
+
     def payoff(self, tech_spend):
         """
         reward = P0 + Pu + Pt
@@ -53,9 +53,13 @@ class Game(object):
     }
 
     def __init__(self, players):
-        """Initialize a new game with the given list of players."""
+        """
+        Initialize a new game with the given list of players.
+        Remove players with unset strategies (absent network players).
+        """
         for name, strategy in players.items():
             self.players.append(Player(strategy, name, self.INITIAL_BANKROLL, self.INITIAL_TECH))
+        self.players = [p for p in self.players if p.strategy]
         self.public_information['last_winning_miner'] = ''
         self.public_information['last_winning_bid'] = 0
         self.public_information['last_winning_bidders'] = list()
@@ -77,11 +81,6 @@ class Game(object):
         self.public_information['round'] = self.round
         for player in self.players:
             player.next_round()
-
-    def keep_player_logs(self):
-        """Keep a log of all player moves by opening a log file for each player"""
-        for p in self.players:
-            p.open_statistics_file()
 
     def discovery(self):
         """
